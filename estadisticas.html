@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas - Bot de Mantenimiento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .stats-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .nav-links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #0066cc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">Inicio</a> | 
+            <a href="/dashboard">Dashboard</a> | 
+            <a href="/estadisticas">Estadísticas</a>
+        </div>
+        
+        <h1>Estadísticas del Bot</h1>
+        
+        <div class="stats-section">
+            <h2>Estadísticas Generales</h2>
+            <table>
+                <tr>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                </tr>
+                <tr>
+                    <td>Total de consultas</td>
+                    <td>{{ stats.get('total_mensajes', 0) }}</td>
+                </tr>
+                <tr>
+                    <td>Consultas resueltas</td>
+                    <td>{{ stats.get('consultas_satisfactorias', 0) }}</td>
+                </tr>
+                <tr>
+                    <td>Derivaciones a agentes</td>
+                    <td>{{ stats.get('derivaciones_agente', 0) }}</td>
+                </tr>
+                <tr>
+                    <td>Satisfacción promedio</td>
+                    <td>{{ "%.2f"|format(stats.get('satisfaccion_promedio', 0)) }}%</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="stats-section">
+            <h2>Estadísticas por Sistema</h2>
+            <table>
+                <tr>
+                    <th>Sistema</th>
+                    <th>Consultas</th>
+                    <th>% del Total</th>
+                </tr>
+                {% for sistema, count in stats.get('consultas_por_sistema', {}).items() %}
+                <tr>
+                    <td>{{ sistema }}</td>
+                    <td>{{ count }}</td>
+                    <td>{{ "%.1f"|format(count / stats.get('total_mensajes', 1) * 100) }}%</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

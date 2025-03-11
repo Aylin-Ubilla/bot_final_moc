@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas del Bot MOC - JetSmart</title>
+    <!-- Lato Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- DateRangePicker -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <!-- SheetJS para exportación a Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #E31C79;
+            --secondary: #00B0B9;
+            --dark: #333333;
+            --light: #FFFFFF;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary);
+            font-weight: 900;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--medium-gray);
+            padding-bottom: 15px;
+        }
+        
+        .stat-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid var(--primary);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        
+        .chart-container {
+            margin: 30px 0;
+            height: 300px;
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--light);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: var(--light);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        
+        tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+        
+        tr:hover {
+            background-color: var(--medium-gray);
+        }
+        
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--light);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #c01868;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #00919a;
+        }
+        
+        .btn-dark {
+            background-color: var(--dark);
+        }
+        
+        .btn-dark:hover {
+            background-color: #222222;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .date-range {
+            font-size: 0.9rem;
+            color: var(--dark);
+            font-weight: 400;
+        }
+        
+        .card-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card-col {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .section-title {
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--medium-gray);
+            color: var(--primary);
+            font-weight: 900;
+        }
+        
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-label {
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .date-picker {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Lato', sans-serif;
+        }
+        
+        .export-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--dark);
+            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .card-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="jetsmart-header" style="background: linear-gradient(to right, var(--primary), var(--secondary)); color: var(--light); padding: 20px; border-radius: 10px 10px 0 0; margin: -30px -30px 30px -30px; text-align: center;">
+            <h1 style="color: var(--light); margin: 0; padding: 0;">Dashboard de Estadísticas</h1>
+            <p style="margin: 5px 0 0 0;">Sistema de Mantenimiento MOC - JetSmart</p>
+        </div>
+        
+        <div class="dashboard-header">
+            <div class="date-range">
+                <span class="filter-label">Rango de fechas:</span>
+                <input type="text" id="daterange" class="date-picker" value="{{ stats.fecha_inicio if stats.fecha_inicio else 'Inicio' }} - {{ stats.fecha_actual }}" />
+            </div>
+            
+            <div class="export-container">
+                <button id="exportCSV" class="btn btn-dark">Exportar a CSV</button>
+                <button id="exportExcel" class="btn btn-dark">Exportar a Excel</button>
+            </div>
+        </div>
+        
+        <div class="card-row">
+            <div class="card-col">
+                <div class="stat-card">
+                    <div class="stat-title">Total de Conversaciones</div>
+                    <div class="stat-value">{{ stats.total_conversaciones }}</div>
+                </div>
+            </div>
+            
+            <div class="card-col">
+                <div class="stat-card">
+                    <div class="stat-title">Total de Mensajes</div>
+                    <div class="stat-value">{{ stats.total_mensajes }}</div>
+                </div>
+            </div>
+            
+            <div class="card-col">
+                <div class="stat-card">
+                    <div class="stat-title">Tiempo Promedio de Respuesta</div>
+                    <div class="stat-value">{{ stats.tiempo_respuesta_promedio }} s</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-row">
+            <div class="card-col">
+                <div class="stat-card">
+                    <div class="stat-title">Consultas Urgentes</div>
+                    <div class="stat-value">{{ stats.consultas_urgentes }}</div>
+                </div>
+            </div>
+            
+            <div class="card-col">
+                <div class="stat-card">
+                    <div class="stat-title">Derivaciones a Agente</div>
+                    <div class="stat-value">{{ stats.derivaciones_agente }}</div>
+                </div>
+            </div>
+            
+            <div class="card-col">
+                <div class="stat-card">
+                    <div class="stat-title">Respuestas Automáticas</div>
+                    <div class="stat-value">{{ stats.respuestas_automaticas }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Distribución de Consultas</h2>
+        <div class="card-row">
+            <div class="card-col">
+                <div class="chart-container">
+                    <canvas id="sistemasChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card-col">
+                <div class="chart-container">
+                    <canvas id="problemasChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <h2 class="section-title">Métricas de Rendimiento</h2>
+        <div class="chart-container">
+            <canvas id="metricsChart"></canvas>
+        </div>
+        
+        <h2 class="section-title">Detalle por Sistema</h2>
+        <div class="table-responsive">
+            <table id="sistemasTable">
+                <thead>
+                    <tr>
+                        <th>Sistema</th>
+                        <th>Cantidad</th>
+                        <th>Porcentaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_sistemas = stats.consultas_por_sistema.values()|sum %}
+                    {% for sistema, cantidad in stats.consultas_por_sistema.items() %}
+                    <tr>
+                        <td>{{ sistema }}</td>
+                        <td>{{ cantidad }}</td>
+                        <td>{{ "%.1f"|format(cantidad / total_sistemas * 100 if total_sistemas > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <h2 class="section-title">Detalle por Problema</h2>
+        <div class="table-responsive">
+            <table id="problemasTable">
+                <thead>
+                    <tr>
+                        <th>Problema</th>
+                        <th>Cantidad</th>
+                        <th>Porcentaje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_problemas = stats.consultas_por_problema.values()|sum %}
+                    {% for problema, cantidad in stats.consultas_por_problema.items() %}
+                    <tr>
+                        <td>{{ problema }}</td>
+                        <td>{{ cantidad }}</td>
+                        <td>{{ "%.1f"|format(cantidad / total_problemas * 100 if total_problemas > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn btn-primary">Volver al Chat</a>
+            <a href="/cargar_manual" class="btn btn-secondary">Cargar Manual de Mantenimiento</a>
+        </div>
+        
+        <div class="footer">
+            <p>© 2023 JetSmart - Sistema de Mantenimiento MOC</p>
+        </div>
+    </div>
+    
+    <script>
+        // Configuración de colores JetSmart
+        const primaryColor = '#E31C79';
+        const secondaryColor = '#00B0B9';
+        const tertiaryColor = '#FFC107';
+        
+        // Datos para los gráficos
+        const sistemaLabels = [{% for sistema in stats.consultas_por_sistema.keys() %}'{{ sistema }}',{% endfor %}];
+        const sistemaDatos = [{% for cantidad in stats.consultas_por_sistema.values() %}{{ cantidad }},{% endfor %}];
+        
+        const problemaLabels = [{% for problema in stats.consultas_por_problema.keys() %}'{{ problema }}',{% endfor %}];
+        const problemaDatos = [{% for cantidad in stats.consultas_por_problema.values() %}{{ cantidad }},{% endfor %}];
+        
+        // Colores para los gráficos en estilo JetSmart
+        const backgroundColors = [
+            primaryColor + 'CC',
+            secondaryColor + 'CC',
+            tertiaryColor + 'CC',
+            '#6C757DCC',
+            '#20C997CC',
+            '#6610F2CC',
+            '#FD7E14CC',
+            '#198754CC',
+            '#DC3545CC',
+            '#0DCAF0CC'
+        ];
+        
+        // Gráfico de sistemas
+        const ctxSistemas = document.getElementById('sistemasChart').getContext('2d');
+        const sistemasChart = new Chart(ctxSistemas, {
+            type: 'pie',
+            data: {
+                labels: sistemaLabels,
+                datasets: [{
+                    data: sistemaDatos,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(color => color.replace('CC', '')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Consultas por Sistema',
+                        color: primaryColor,
+                        font: {
+                            family: 'Lato',
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico de problemas
+        const ctxProblemas = document.getElementById('problemasChart').getContext('2d');
+        const problemasChart = new Chart(ctxProblemas, {
+            type: 'doughnut',
+            data: {
+                labels: problemaLabels,
+                datasets: [{
+                    data: problemaDatos,
+                    backgroundColor: backgroundColors,
+                    borderColor: backgroundColors.map(color => color.replace('CC', '')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución de Consultas por Problema',
+                        color: primaryColor,
+                        font: {
+                            family: 'Lato',
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico de métricas
+        const ctxMetrics = document.getElementById('metricsChart').getContext('2d');
+        const metricsChart = new Chart(ctxMetrics, {
+            type: 'bar',
+            data: {
+                labels: ['Consultas Urgentes', 'Derivaciones a Agente', 'Respuestas Automáticas'],
+                datasets: [{
+                    label: 'Cantidad',
+                    data: [
+                        {{ stats.consultas_urgentes }},
+                        {{ stats.derivaciones_agente }},
+                        {{ stats.respuestas_automaticas }}
+                    ],
+                    backgroundColor: [
+                        primaryColor + 'CC',
+                        tertiaryColor + 'CC',
+                        secondaryColor + 'CC'
+                    ],
+                    borderColor: [
+                        primaryColor,
+                        tertiaryColor,
+                        secondaryColor
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            font: {
+                                family: 'Lato'
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: 'Lato'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Métricas de Rendimiento',
+                        color: primaryColor,
+                        font: {
+                            family: 'Lato',
+                            size: 16,
+                            weight: 'bold'
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            font: {
+                                family: 'Lato'
+                            }
+                        }
+                    }
+                },
+                font: {
+                    family: 'Lato'
+                }
+            }
+        });
+        
+        // Inicializar DateRangePicker
+        $(function() {
+            $('#daterange').daterangepicker({
+                opens: 'left',
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    applyLabel: 'Aplicar',
+                    cancelLabel: 'Cancelar',
+                    fromLabel: 'Desde',
+                    toLabel: 'Hasta',
+                    customRangeLabel: 'Rango personalizado',
+                    daysOfWeek: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa'],
+                    monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+                    firstDay: 1
+                }
+            }, function(start, end, label) {
+                // Redirigir a la misma página con parámetros de fecha
+                window.location.href = `/stats?start=${start.format('YYYY-MM-DD')}&end=${end.format('YYYY-MM-DD')}`;
+            });
+        });
+        
+        // Función para exportar a CSV
+        document.getElementById('exportCSV').addEventListener('click', function() {
+            // Preparar datos de sistemas
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Sistema,Cantidad,Porcentaje\n";
+            
+            const sistemasTable = document.getElementById('sistemasTable');
+            const sistemasRows = sistemasTable.querySelectorAll('tbody tr');
+            
+            sistemasRows.forEach(row => {
+                const sistema = row.cells[0].textContent;
+                const cantidad = row.cells[1].textContent;
+                const porcentaje = row.cells[2].textContent;
+                csvContent += `${sistema},${cantidad},${porcentaje}\n`;
+            });
+            
+            // Añadir datos de problemas
+            csvContent += "\nProblema,Cantidad,Porcentaje\n";
+            
+            const problemasTable = document.getElementById('problemasTable');
+            const problemasRows = problemasTable.querySelectorAll('tbody tr');
+            
+            problemasRows.forEach(row => {
+                const problema = row.cells[0].textContent;
+                const cantidad = row.cells[1].textContent;
+                const porcentaje = row.cells[2].textContent;
+                csvContent += `${problema},${cantidad},${porcentaje}\n`;
+            });
+            
+            // Añadir métricas generales
+            csvContent += "\nMétrica,Valor\n";
+            csvContent += `Total Conversaciones,{{ stats.total_conversaciones }}\n`;
+            csvContent += `Total Mensajes,{{ stats.total_mensajes }}\n`;
+            csvContent += `Tiempo Respuesta Promedio,{{ stats.tiempo_respuesta_promedio }}\n`;
+            csvContent += `Consultas Urgentes,{{ stats.consultas_urgentes }}\n`;
+            csvContent += `Derivaciones a Agente,{{ stats.derivaciones_agente }}\n`;
+            csvContent += `Respuestas Automáticas,{{ stats.respuestas_automaticas }}\n`;
+            
+            // Crear enlace de descarga
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "estadisticas_bot_moc.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+        
+        // Función para exportar a Excel
+        document.getElementById('exportExcel').addEventListener('click', function() {
+            // Crear un libro de trabajo
+            const wb = XLSX.utils.book_new();
+            
+            // Datos de sistemas
+            const sistemasData = [['Sistema', 'Cantidad', 'Porcentaje']];
+            const sistemasTable = document.getElementById('sistemasTable');
+            const sistemasRows = sistemasTable.querySelectorAll('tbody tr');
+            
+            sistemasRows.forEach(row => {
+                const sistema = row.cells[0].textContent;
+                const cantidad = row.cells[1].textContent;
+                const porcentaje = row.cells[2].textContent;
+                sistemasData.push([sistema, cantidad, porcentaje]);
+            });
+            
+            // Datos de problemas
+            const problemasData = [['Problema', 'Cantidad', 'Porcentaje']];
+            const problemasTable = document.getElementById('problemasTable');
+            const problemasRows = problemasTable.querySelectorAll('tbody tr');
+            
+            problemasRows.forEach(row => {
+                const problema = row.cells[0].textContent;
+                const cantidad = row.cells[1].textContent;
+                const porcentaje = row.cells[2].textContent;
+                problemasData.push([problema, cantidad, porcentaje]);
+            });
+            
+            // Métricas generales
+            const metricasData = [
+                ['Métrica', 'Valor'],
+                ['Total Conversaciones', '{{ stats.total_conversaciones }}'],
+                ['Total Mensajes', '{{ stats.total_mensajes }}'],
+                ['Tiempo Respuesta Promedio', '{{ stats.tiempo_respuesta_promedio }}'],
+                ['Consultas Urgentes', '{{ stats.consultas_urgentes }}'],
+                ['Derivaciones a Agente', '{{ stats.derivaciones_agente }}'],
+                ['Respuestas Automáticas', '{{ stats.respuestas_automaticas }}']
+            ];
+            
+            // Crear hojas de trabajo
+            const wsSistemas = XLSX.utils.aoa_to_sheet(sistemasData);
+            const wsProblemas = XLSX.utils.aoa_to_sheet(problemasData);
+            const wsMetricas = XLSX.utils.aoa_to_sheet(metricasData);
+            
+            // Añadir hojas al libro
+            XLSX.utils.book_append_sheet(wb, wsSistemas, "Sistemas");
+            XLSX.utils.book_append_sheet(wb, wsProblemas, "Problemas");
+            XLSX.utils.book_append_sheet(wb, wsMetricas, "Métricas Generales");
+            
+            // Guardar archivo
+            XLSX.writeFile(wb, "estadisticas_bot_moc.xlsx");
+        });
+    </script>
+</body>
+</html> 

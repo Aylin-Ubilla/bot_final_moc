@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bot de Mantenimiento</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .dashboard-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        /* Estilos para la barra de navegación */
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .nav-links a {
+            margin: 0 15px;
+            text-decoration: none;
+            color: #075e54;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+        }
+        .nav-links a:hover {
+            background-color: #e0e0e0;
+        }
+        .nav-links a.active {
+            background-color: #075e54;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/">Chat</a> | 
+            <a href="/dashboard" class="active">Dashboard</a> | 
+            <a href="/estadisticas">Estadísticas</a>
+        </div>
+        
+        <h1>Dashboard de Mantenimiento</h1>
+        
+        <div class="dashboard-section">
+            <h2>Resumen de Actividad</h2>
+            <p>Total de consultas: {{ stats.get('total_mensajes', 0) }}</p>
+            <p>Consultas resueltas: {{ stats.get('consultas_satisfactorias', 0) }}</p>
+            <!-- ... más estadísticas ... -->
+        </div>
+        
+        <div class="dashboard-section">
+            <h2>Sistemas más Consultados</h2>
+            <ul>
+            {% for sistema, count in stats.get('consultas_por_sistema', {}).items() %}
+                <li>{{ sistema }}: {{ count }} consultas</li>
+            {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="dashboard-section">
+            <h2>Problemas Frecuentes</h2>
+            <p>Aquí se mostrarán los problemas más frecuentes reportados.</p>
+            <!-- Aquí puedes añadir gráficos, tablas, etc. -->
+        </div>
+    </div>
+</body>
+</html> 

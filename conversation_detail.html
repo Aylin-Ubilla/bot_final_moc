@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Conversación - Bot de Mantenimiento MOC</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --jetsmart-blue: #00215B;
+            --jetsmart-red: #E81D2C;
+            --jetsmart-light-blue: #3A5CAA;
+            --jetsmart-light-red: #F15A68;
+            --jetsmart-gray: #F2F2F2;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: var(--jetsmart-blue);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        
+        .navbar {
+            background-color: var(--jetsmart-blue) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--jetsmart-blue);
+            border-color: var(--jetsmart-blue);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--jetsmart-light-blue);
+            border-color: var(--jetsmart-light-blue);
+        }
+        
+        .message {
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            max-width: 80%;
+        }
+        
+        .user-message {
+            background-color: #d9fdd3;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .bot-message {
+            background-color: #ffffff;
+            margin-right: auto;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #8696a0;
+            margin-top: 5px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: var(--jetsmart-blue);
+        }
+        
+        .satisfaction-badge {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .satisfaction-positive {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .satisfaction-negative {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .satisfaction-unknown {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span style="color: white; font-weight: bold;">JetSMART</span> Bot de Mantenimiento MOC
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/knowledge">Base de Conocimiento</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>Conversación #{{ conversation.id[:8] }}</div>
+                        <a href="/dashboard" class="btn btn-sm btn-light">Volver al Dashboard</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="chat-messages">
+                            {% for mensaje in conversation.mensajes %}
+                                <div class="d-flex {% if mensaje.tipo == 'usuario' %}justify-content-end{% endif %}">
+                                    <div class="message {% if mensaje.tipo == 'usuario' %}user-message{% else %}bot-message{% endif %}">
+                                        {{ mensaje.texto|replace('\n', '<br>')|safe }}
+                                        <div class="message-time">{{ mensaje.timestamp }}</div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        Detalles de la Conversación
+                    </div>
+                    <div class="card-body">
+                        <p><span class="info-label">ID Usuario:</span> {{ conversation.id_usuario }}</p>
+                        <p><span class="info-label">Fecha:</span> {{ conversation.fecha }}</p>
+                        <p><span class="info-label">Sistema:</span> {{ conversation.sistema or 'No especificado' }}</p>
+                        <p><span class="info-label">Problema:</span> {{ conversation.problema or 'No especificado' }}</p>
+                        <p><span class="info-label">Matrícula:</span> {{ conversation.matricula or 'No especificada' }}</p>
+                        <p>
+                            <span class="info-label">Urgente:</span> 
+                            {% if conversation.es_urgente %}
+                                <span class="badge bg-danger">Sí</span>
+                            {% else %}
+                                <span class="badge bg-secondary">No</span>
+                            {% endif %}
+                        </p>
+                        
+                        <div class="mt-4">
+                            <h5>Satisfacción del Usuario</h5>
+                            {% if conversation.satisfaccion is defined %}
+                                {% if conversation.satisfaccion %}
+                                    <div class="satisfaction-badge satisfaction-positive">
+                                        <i class="bi bi-emoji-smile"></i> Consulta Resuelta
+                                    </div>
+                                {% else %}
+                                    <div class="satisfaction-badge satisfaction-negative">
+                                        <i class="bi bi-emoji-frown"></i> Consulta No Resuelta
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="satisfaction-badge satisfaction-unknown">
+                                    <i class="bi bi-question-circle"></i> Sin Información
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

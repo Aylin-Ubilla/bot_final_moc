@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar Manual - Bot MOC JetSmart</title>
+    <!-- Lato Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E31C79;
+            --secondary: #00B0B9;
+            --dark: #333333;
+            --light: #FFFFFF;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+        }
+        
+        body {
+            font-family: 'Lato', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-gray);
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--light);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 900;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .file-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed var(--primary);
+            border-radius: 5px;
+            background-color: var(--light);
+            transition: border-color 0.3s ease;
+        }
+        
+        .file-input:hover {
+            border-color: var(--secondary);
+        }
+        
+        .submit-btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: var(--light);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            background-color: #c01868;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .jetsmart-header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: var(--light);
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .jetsmart-header h1 {
+            margin: 0;
+            padding: 0;
+            color: var(--light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="jetsmart-header">
+            <h1>Cargar Manual de Mantenimiento</h1>
+        </div>
+        
+        <form action="/cargar_manual" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="manual_pdf">Selecciona el archivo PDF del manual:</label>
+                <input type="file" id="manual_pdf" name="manual_pdf" accept=".pdf" class="file-input" required>
+            </div>
+            
+            <button type="submit" class="submit-btn">Cargar y Procesar Manual</button>
+        </form>
+        
+        <a href="/" class="back-link">Volver al Chat</a>
+    </div>
+</body>
+</html> 
